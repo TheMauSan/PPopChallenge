@@ -16,8 +16,9 @@ namespace PathFinding
         [Space]
         [Tooltip("Different textures of each tipe of tile")]
         [Header("Tile Textures")]
-        [SerializeField] Texture t_grass = null;
-        [SerializeField] Texture t_forest, t_desert, t_mountain, t_water = null;
+        [SerializeField] Texture t_grass, t_forest, t_desert, t_mountain, t_water = null;
+
+        Dictionary<Node.NodeType, Texture> textureRef = new Dictionary<Node.NodeType, Texture>();
 
         [Space]
         [Header("Map Size")]
@@ -58,6 +59,14 @@ namespace PathFinding
             {
                 Destroy(gameObject);
             }
+
+            //Create Texture Dictionary.
+            textureRef.Add(Node.NodeType.Grass, t_grass);
+            textureRef.Add(Node.NodeType.Forest, t_forest);
+            textureRef.Add(Node.NodeType.Desert, t_desert);
+            textureRef.Add(Node.NodeType.Mountain, t_mountain);
+            textureRef.Add(Node.NodeType.Water, t_water);
+
         }
 
         // Start is called before the first frame update
@@ -66,13 +75,7 @@ namespace PathFinding
             //Create the nodes on screen.
             CreateNodes();
         }
-
-        private void Update()
-        {
-            //Check the mouse activity.
-            GetMouseClick();
-        }
-
+        
 
         #region Node Creation (Main Functions)
         private void CreateNodes()
@@ -144,39 +147,12 @@ namespace PathFinding
 
 
                 node.tileObject = newTile;
-                renderer.material.mainTexture = GetNodeTexture(node);
+                renderer.material.mainTexture = textureRef[node.nodeType];
             }
 
             //Just set active and inactive Z position.
             inactiveZ = nodeList[0].tileObject.transform.position.z;
             activeZ += 0.1f;
-        }
-        private Texture GetNodeTexture(Node node)
-        {
-            //Based on the node type, it add the correct texture to the tile.
-            if (node.nodeType == Node.NodeType.Grass)
-            {
-                return t_grass;
-            }
-            else if (node.nodeType == Node.NodeType.Forest)
-            {
-                return t_forest;
-            }
-            else if (node.nodeType == Node.NodeType.Desert)
-            {
-                return t_desert;
-            }
-            else if (node.nodeType == Node.NodeType.Mountain)
-            {
-                return t_mountain;
-            }
-            else if (node.nodeType == Node.NodeType.Water)
-            {
-                return t_water;
-            } else
-            {
-                return null;
-            }
         }
 
         private List<Vector3> NeighbourPositions(Vector3 center, Vector3 size)
@@ -234,38 +210,8 @@ namespace PathFinding
 
         #endregion
 
-        #region Mouse Function
-        private void GetMouseClick()
-        {
-            if(Input.GetMouseButtonDown(0))
-            {
-                //Get a Ray on the mouse position. (Left click)
-                RaycastHit hit;
-                Ray ray = Camera.main.ScreenPointToRay(Input.mousePosition);
-                if(Physics.Raycast(ray, out hit, 100.0f))
-                {
-                    //Send the clicked object to the pathfinder.
-                    SetPath(hit.transform);
-                }
-            }
-
-            if(Input.GetMouseButtonDown(1))
-            {
-                //Get a Ray on the mouse position. (Right click)
-                RaycastHit hit;
-                Ray ray = Camera.main.ScreenPointToRay(Input.mousePosition);
-                if (Physics.Raycast(ray, out hit, 100.0f))
-                {
-                    //Change this node behavior.
-                    StartCoroutine(ChangeNodeBehavior(hit.transform));
-                }
-            }
-        }
-
-        #endregion
-
         #region Path Functions
-        private void SetPath(Transform node)
+        public  void SetPath(Transform node)
         {
             //This function set the Start and End point depending in the current activity.
             //This is the latest pressed node.
@@ -404,7 +350,7 @@ namespace PathFinding
         #endregion
 
         #region Extra Functions
-        IEnumerator ChangeNodeBehavior(Transform Node)
+        public IEnumerator ChangeNodeBehavior(Transform Node)
         {
             //This function allows the User to switch a node behavior and value on runtime.
             //It's a Coroutine so the function can be responsive for the user.
@@ -412,7 +358,7 @@ namespace PathFinding
             Node nodeToChange = nodeList.Find(n => n.tileObject == Node.gameObject);
             var nodeObj = nodeToChange.tileObject;
             nodeToChange.DefineNodeType(false);
-            nodeObj.GetComponentInChildren<Renderer>().material.mainTexture = GetNodeTexture(nodeToChange);
+            nodeObj.GetComponentInChildren<Renderer>().material.mainTexture = textureRef[nodeToChange.nodeType];
 
 
             nodeObj.transform.position += new Vector3(0, 0, activeZ);

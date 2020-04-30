@@ -26,8 +26,15 @@ namespace PathFinding
         public enum NodeType
         {
             //Contains the type of nodes that can exist
-            Grass = 0, Forest= 1, Desert = 2, Mountain = 3, Water = 4
+            Grass = 0, Forest = 1, Desert = 2, Mountain = 3, Water = 4
         }
+
+        Dictionary<NodeType, int> dayCosts = new Dictionary<NodeType, int>() { 
+            { NodeType.Grass, GRASS_DAYS }, 
+            { NodeType.Forest, FOREST_DAYS }, 
+            { NodeType.Desert, DESERT_DAYS }, 
+            { NodeType.Mountain, MOUNTAIN_DAYS }, 
+            { NodeType.Water, WATER_DAYS } };
 
         public Node(Vector3 position)
         {
@@ -53,22 +60,7 @@ namespace PathFinding
             }
 
             //Change the GCost
-            if(nodeType == NodeType.Grass)
-            {
-                gValue = GRASS_DAYS;
-            } else if(nodeType == NodeType.Forest)
-            {
-                gValue = FOREST_DAYS;
-            } else if(nodeType == NodeType.Desert)
-            {
-                gValue = DESERT_DAYS;
-            } else if(nodeType == NodeType.Mountain)
-            {
-                gValue = MOUNTAIN_DAYS;
-            } else if(nodeType == NodeType.Water)
-            {
-                gValue = WATER_DAYS;
-            }
+            gValue = dayCosts[nodeType];
         }
 
         public void AddNeighbour(Node nbr)
