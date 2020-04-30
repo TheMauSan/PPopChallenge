@@ -21,7 +21,8 @@ It was done creating 2 different classes. One is in charge of creating the map o
 The Node class make reference to the IAStarNode interface.
 The NodeCreator create all the nodes on screen based on a Tile Prefab.
 The map size is limited by a Vector3, it can be seen on screen with a Gizmo. Nodes will not go forward this Vector3 limits.
-The addresses of each node is multiplied by the node size, but with a limit of 500 tiles. This way the map will always be generated respectively without differences on the nodes positions.
+The addresses of each node is multiplied by the node size. This way the map will always be generated respectively without differences on the nodes positions.
+On Inspector, he user can set the max amount of tiles who will be created instead of using the vector3 limits.
 
 When the player make a click on a tile, it create a Start or End point, once the two points are setted, it will give a path.
 When the player click another point, the path continues since the last point selected.
