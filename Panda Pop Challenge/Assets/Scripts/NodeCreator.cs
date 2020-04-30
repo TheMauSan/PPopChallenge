@@ -20,9 +20,11 @@ namespace PathFinding
         [SerializeField] Texture t_forest, t_desert, t_mountain, t_water = null;
 
         [Space]
-        [Tooltip("The grid will be constructed between the margins of this Vector. Can be changed from inspector and pre visualized with a Gizmo.")]
         [Header("Map Size")]
+        [Tooltip("The grid will be constructed between the margins of this Vector. Can be changed from inspector and pre visualized with a Gizmo.")]
         [SerializeField] Vector3 mapSize = Vector3.one;
+        [Tooltip("Put a limit to the quantity of nodes to generate in case the map is oversized.")]
+        [SerializeField] int maxTiles = 500;
 
         [Space]
         [Tooltip("Allow the user to change the colors of the tiles when a path is choosen.")]
@@ -93,8 +95,8 @@ namespace PathFinding
             Node startNode = new Node(startPos);
             nodeList.Add(startNode);
 
-            //For this case, it puts a limit of 500 tiles if the margins aren't reached before.
-            for (var i = 0; i < 500; i++)
+            //Put a limit on the amount of tiles to create.
+            for (var i = 0; i < maxTiles; i++)
             {
                 if (i >= nodeList.Count)
                 {
@@ -107,17 +109,19 @@ namespace PathFinding
                 //Get a list with the neighbour positions
                 foreach (Vector3 neighbour in NeighbourPositions(currentNode.nodePosition, nodeObj.transform.localScale))
                 {
+
                     //Check if a Tile GameObject exists in the neighbour position. 
                     //Since the positions are float points (not exacts), uses Mathf.Approximately to check it properly.
                     Node neighbourNode = nodeList.Find(n => Mathf.Approximately(n.nodePosition.x, neighbour.x) && Mathf.Approximately(n.nodePosition.y, neighbour.y));
 
-                    //If a neighbour exists, add it to the current node neighbours, else, it creates the node and adds it.
+                    //If a neighbour exists, add it to the current node neighbours, else, if the amount of max tiles is not surpased, create and add it.
                     if (neighbourNode != null)
                     {
                         currentNode.AddNeighbour(neighbourNode);
                     }
-                    else
+                    else if(nodeList.Count < maxTiles)
                     {
+                        
                         neighbourNode = new Node(neighbour);
                         currentNode.AddNeighbour(neighbourNode);
                         nodeList.Add(neighbourNode);
@@ -132,7 +136,7 @@ namespace PathFinding
         private void CreateMap()
         {
             //This function creates the GameObjects on the map once all the Positions are setted and make a reference in each node to the correspondent GameObject (Tile).
-
+            
             foreach(Node node in nodeList)
             {
                 var newTile = Instantiate(nodeObj, node.nodePosition, Quaternion.identity);
